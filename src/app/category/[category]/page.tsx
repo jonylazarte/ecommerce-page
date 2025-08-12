@@ -1,32 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../../../components/header/header';
 import ProductCard from '../../../components/ProductCard';
 import { getProductsByCategory, Product } from '../../../lib/products';
+import { useCart } from '../../../contexts/CartContext';
 
 export default function CategoryPage() {
   const params = useParams();
   const category = params.category as string;
-  const products = getProductsByCategory(category);
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { cartItems } = useCart();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsData = await getProductsByCategory(category);
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [category]);
 
   const addToCart = (product: Product, quantity: number) => {
     if (!product || !quantity) return;
     
-    setCartItems(prevItems => {
-      const existingItemIndex = prevItems.findIndex(item => item.id === product.id);
-      
-      if (existingItemIndex >= 0) {
-        const newItems = [...prevItems];
-        newItems[existingItemIndex].quantity += quantity;
-        return newItems;
-      } else {
-        return [...prevItems, { ...product, quantity }];
-      }
-    });
+    // This function is now handled by the context, so we just need to update the context
+    // The context will manage the cartItems state and re-render the header
   };
 
   const categoryNames: Record<string, string> = {
@@ -47,10 +56,22 @@ export default function CategoryPage() {
     'wearables': '可穿戴设备'
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-chinese-black-900 chinese-bg">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+          <h1 className="text-3xl text-chinese-red-400 mb-4">Cargando productos...</h1>
+          <p className="text-chinese-red-300 mb-8">Por favor, espera mientras cargamos los productos de la categoría.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (products.length === 0) {
     return (
       <div className="min-h-screen bg-chinese-black-900 chinese-bg">
-        <Header cartItems={cartItems} />
+        <Header />
         <div className="max-w-7xl mx-auto px-4 py-16 text-center">
           <h1 className="text-3xl text-chinese-red-400 mb-4">Categoría no encontrada</h1>
           <p className="text-chinese-red-300 mb-8">La categoría que buscas no existe o no tiene productos</p>
@@ -64,7 +85,7 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-chinese-black-900 chinese-bg">
-      <Header cartItems={cartItems} />
+      <Header />
       
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
@@ -95,16 +116,8 @@ export default function CategoryPage() {
             <ProductCard
               key={product.id}
               product={product}
-              onAddToCart={addToCart}
             />
           ))}
-        </div>
-
-        {/* Back to All Products */}
-        <div className="text-center mt-12">
-          <Link href="/" className="btn-chinese-secondary">
-            Ver todos los productos
-          </Link>
         </div>
       </main>
     </div>

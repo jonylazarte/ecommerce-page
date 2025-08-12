@@ -54,13 +54,12 @@ export default function PayPalButton({
     if (!isLoaded || !window.paypal) return;
 
     window.paypal.Buttons({
-      createOrder: (data: any, actions: any) => {
+      createOrder: async (data: Record<string, unknown>, actions: { order: { create: (order: Record<string, unknown>) => Promise<string> } }) => {
         return actions.order.create({
           purchase_units: [
             {
               amount: {
-                value: (amount / 100).toFixed(2), // Convertir centavos a dólares
-                currency_code: currency
+                value: amount.toString()
               }
             }
           ]

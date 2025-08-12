@@ -3,13 +3,14 @@ import { prisma } from '../../../../../lib/db';
 import { verifyToken } from '../../../../../lib/auth';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -29,7 +30,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { role },
       select: {
         id: true,
@@ -51,6 +52,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -63,12 +65,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Prevent admin from deleting themselves
-    if (user.id === params.id) {
+    if (user.id === id) {
       return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 });
     }
 
     await prisma.user.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ message: 'Usuario eliminado exitosamente' });

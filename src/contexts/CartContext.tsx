@@ -26,40 +26,35 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  const addToCart = (product: any, quantity: number) => {
+  const addToCart = (product: Product, quantity: number): void => {
     setCartItems(prevItems => {
       const existingItemIndex = prevItems.findIndex(item => item.id === product.id);
       
-      if (existingItemIndex > -1) {
-        // Update existing item quantity
+      if (existingItemIndex >= 0) {
         const newItems = [...prevItems];
         newItems[existingItemIndex].quantity += quantity;
         return newItems;
       } else {
-        // Add new item
-        return [...prevItems, {
-          id: product.id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          image: product.image,
-          quantity
-        }];
+        return [...prevItems, { ...product, quantity }];
       }
     });
   };
 
-  const updateQuantity = (index: number, quantity: number) => {
+  const removeFromCart = (productId: string): void => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+  };
+
+  const updateQuantity = (productId: string, quantity: number): void => {
     if (quantity <= 0) {
-      removeItem(index);
+      removeFromCart(productId);
       return;
     }
     
-    setCartItems(prevItems => {
-      const newItems = [...prevItems];
-      newItems[index].quantity = quantity;
-      return newItems;
-    });
+    setCartItems(prevItems => 
+      prevItems.map(item => 
+        item.id === productId ? { ...item, quantity } : item
+      )
+    );
   };
 
   const removeItem = (index: number) => {

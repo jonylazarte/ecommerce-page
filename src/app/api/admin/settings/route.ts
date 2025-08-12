@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
     // Obtener todas las configuraciones
     const settings = await prisma.settings.findMany();
     
-    const config: any = {};
+    const config: Record<string, unknown> = {};
     settings.forEach(setting => {
       config[setting.key] = JSON.parse(setting.value);
     });

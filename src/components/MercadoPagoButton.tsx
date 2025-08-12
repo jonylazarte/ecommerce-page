@@ -57,7 +57,7 @@ export default function MercadoPagoButton({
     };
   }, [onError]);
 
-  const handlePayment = async () => {
+  const handlePayment = async (): Promise<void> => {
     if (!window.Mercadopago) {
       onError('MercadoPago no está cargado');
       return;

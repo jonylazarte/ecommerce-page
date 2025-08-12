@@ -10,7 +10,13 @@ interface DashboardStats {
   totalProducts: number;
   totalUsers: number;
   totalRevenue: number;
-  recentOrders: any[];
+  recentOrders: Array<{
+    id: string;
+    customerName: string;
+    total: number;
+    status: string;
+    createdAt: string;
+  }>;
 }
 
 export default function AdminDashboard() {
@@ -222,7 +228,7 @@ export default function AdminDashboard() {
                 {stats.recentOrders.map((order) => (
                   <tr key={order.id} className="border-b border-chinese-red-500/20">
                     <td className="py-3 text-white">{order.id}</td>
-                    <td className="py-3 text-white">{order.user.name}</td>
+                    <td className="py-3 text-white">{order.customerName}</td>
                     <td className="py-3 text-chinese-red-400">¥{order.total.toFixed(2)}</td>
                     <td className="py-3">
                       <span className={`px-2 py-1 rounded-full text-xs ${

@@ -3,13 +3,14 @@ import { prisma } from '../../../../../lib/db';
 import { verifyToken } from '../../../../../lib/auth';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -24,7 +25,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const { status, paymentStatus } = body;
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     
     if (status) {
       updateData.status = status;
@@ -39,7 +40,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const order = await prisma.order.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         user: {
@@ -48,12 +49,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             email: true
           }
         },
-        orderItems: {
+        items: {
           include: {
             product: {
               select: {
                 name: true,
-                image: true
+                images: true
               }
             }
           }

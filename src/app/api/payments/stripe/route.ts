@@ -7,13 +7,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, currency, cardData, items, customerInfo } = await request.json();
+    const { amount, currency, paymentMethodId, customerEmail, customerName } = await request.json();
 
     console.log('Procesando pago con Stripe:', {
       amount,
       currency,
-      items,
-      customerInfo
+      customerEmail,
+      customerName
     });
 
     // Crear el payment intent con Stripe
@@ -24,9 +24,8 @@ export async function POST(request: NextRequest) {
       confirm: true,
       return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success`,
       metadata: {
-        customer_email: customerInfo.email,
-        customer_name: `${customerInfo.firstName} ${customerInfo.lastName}`,
-        items: JSON.stringify(items)
+        customer_email: customerEmail,
+        customer_name: customerName
       }
     });
 
@@ -49,13 +48,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error procesando pago con Stripe:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Error interno del servidor';
     
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || 'Error interno del servidor' 
+        error: errorMessage
       },
       { status: 500 }
     );
