@@ -1,0 +1,63 @@
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-07-30.basil',
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const { amount, currency, cardData, items, customerInfo } = await request.json();
+
+    console.log('Procesando pago con Stripe:', {
+      amount,
+      currency,
+      items,
+      customerInfo
+    });
+
+    // Crear el payment intent con Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount, // Stripe espera el monto en centavos
+      currency: currency.toLowerCase(),
+      payment_method_types: ['card'],
+      confirm: true,
+      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success`,
+      metadata: {
+        customer_email: customerInfo.email,
+        customer_name: `${customerInfo.firstName} ${customerInfo.lastName}`,
+        items: JSON.stringify(items)
+      }
+    });
+
+    if (paymentIntent.status === 'succeeded') {
+      // Crear orden en la base de datos
+      const orderId = `order_${Date.now()}`;
+      
+      console.log('Pago exitoso con Stripe:', paymentIntent.id);
+
+      return NextResponse.json({
+        success: true,
+        paymentIntentId: paymentIntent.id,
+        orderId: orderId,
+        message: 'Pago procesado exitosamente'
+      });
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'El pago no pudo ser procesado' },
+        { status: 400 }
+      );
+    }
+
+  } catch (error: any) {
+    console.error('Error procesando pago con Stripe:', error);
+    
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: error.message || 'Error interno del servidor' 
+      },
+      { status: 500 }
+    );
+  }
+}
