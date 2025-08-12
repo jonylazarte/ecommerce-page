@@ -202,7 +202,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="text-white font-semibold mb-1 chinese-handwriting">Email</h4>
-                      <p className="text-chinese-red-300 chinese-handwriting">info@redchilli.com.ar</p>
+                      <p className="text-chinese-red-300 chinese-handwriting">info@gmaildeprueba.com.ar</p>
                       <p className="text-chinese-red-400 text-sm chinese-handwriting">Respuesta en 24 horas</p>
                     </div>
                   </div>
