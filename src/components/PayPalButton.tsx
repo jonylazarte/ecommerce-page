@@ -13,7 +13,14 @@ interface PayPalButtonProps {
 
 declare global {
   interface Window {
-    paypal?: any;
+    paypal?: {
+      Buttons: (config: {
+        createOrder: (data: Record<string, unknown>, actions: { order: { create: (order: Record<string, unknown>) => Promise<string> } }) => Promise<string>;
+        onApprove: (data: Record<string, unknown>, actions: { order: { capture: () => Promise<{ id: string }> } }) => Promise<void>;
+        onCancel: () => void;
+        onError: (err: { message: string }) => void;
+      }) => { render: (selector: string) => void };
+    };
   }
 }
 
@@ -65,7 +72,7 @@ export default function PayPalButton({
           ]
         });
       },
-      onApprove: async (data: any, actions: any) => {
+      onApprove: async (data: Record<string, unknown>, actions: { order: { capture: () => Promise<{ id: string }> } }) => {
         try {
           const order = await actions.order.capture();
           onSuccess(order.id);
@@ -76,7 +83,7 @@ export default function PayPalButton({
       onCancel: () => {
         onCancel();
       },
-      onError: (err: any) => {
+      onError: (err: { message: string }) => {
         onError('Error en PayPal: ' + err.message);
       }
     }).render('#paypal-button-container');

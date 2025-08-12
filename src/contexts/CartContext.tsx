@@ -1,9 +1,10 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { Product } from '../lib/products';
 
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -13,9 +14,9 @@ export interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: any, quantity: number) => void;
-  updateQuantity: (index: number, quantity: number) => void;
-  removeItem: (index: number) => void;
+  addToCart: (product: Product, quantity: number) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (productId: string) => void;
   clearCart: () => void;
   getTotal: () => number;
   getItemCount: () => number;
@@ -40,13 +41,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const removeFromCart = (productId: string): void => {
+  const removeItem = (productId: string) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
   };
 
   const updateQuantity = (productId: string, quantity: number): void => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeItem(productId);
       return;
     }
     
@@ -55,10 +56,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         item.id === productId ? { ...item, quantity } : item
       )
     );
-  };
-
-  const removeItem = (index: number) => {
-    setCartItems(prevItems => prevItems.filter((_, i) => i !== index));
   };
 
   const clearCart = () => {
