@@ -1,12 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
-});
+let stripe: Stripe | null = null;
+
+// Solo inicializar Stripe si la API key está disponible
+if (process.env.STRIPE_SECRET_KEY) {
+  import('stripe').then((StripeModule) => {
+    const Stripe = StripeModule.default;
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2025-07-30.basil',
+    });
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
+    if (!stripe) {
+      return NextResponse.json(
+        { success: false, error: 'Stripe no está configurado' },
+        { status: 500 }
+      );
+    }
+
     const { amount, currency, paymentMethodId, customerEmail, customerName } = await request.json();
 
     console.log('Procesando pago con Stripe:', {

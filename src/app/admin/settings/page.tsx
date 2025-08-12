@@ -93,7 +93,7 @@ export default function AdminSettings() {
       } else {
         setMessage('Error al guardar la configuración');
       }
-    } catch (error) {
+    } catch {
       setMessage('Error al guardar la configuración');
     } finally {
       setLoading(false);

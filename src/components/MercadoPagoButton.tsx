@@ -13,7 +13,9 @@ interface MercadoPagoButtonProps {
 
 declare global {
   interface Window {
-    Mercadopago?: any;
+    Mercadopago?: {
+      setPublishableKey: (key: string) => void;
+    };
   }
 }
 

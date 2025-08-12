@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -20,16 +20,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
-      router.push('/auth');
-      return;
-    }
-
-    fetchUsers();
-  }, [user, token]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/users', {
         headers: {
@@ -46,7 +37,16 @@ export default function AdminUsers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      router.push('/auth');
+      return;
+    }
+
+    fetchUsers();
+  }, [user, token, router, fetchUsers]);
 
   const updateUserRole = async (userId: string, role: 'USER' | 'ADMIN') => {
     try {

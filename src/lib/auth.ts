@@ -56,18 +56,27 @@ export async function createSession(userId: string): Promise<string> {
 
 export async function validateSession(token: string): Promise<JWTPayload | null> {
   const session = await prisma.session.findUnique({
-    where: { token },
-    include: { user: true }
+    where: { token }
   })
   
   if (!session || session.expiresAt < new Date()) {
     return null
   }
   
+  // Obtener información del usuario por separado
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { id: true, email: true, role: true }
+  })
+  
+  if (!user) {
+    return null
+  }
+  
   return {
-    userId: session.userId,
-    email: session.user.email,
-    role: session.user.role
+    userId: user.id,
+    email: user.email,
+    role: user.role
   }
 }
 

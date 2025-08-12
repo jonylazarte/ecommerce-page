@@ -25,14 +25,14 @@ export const orderSchema = z.object({
 export const paymentSchema = z.object({
   orderId: z.string(),
   paymentMethod: z.enum(['STRIPE', 'PAYPAL']),
-  paymentData: z.record(z.any()), // Datos específicos del método de pago
+  paymentData: z.object({}).passthrough(), // Datos específicos del método de pago
 })
 
 // Validación de CSRF
-export function validateCSRFToken(token: string, sessionToken: string): boolean {
+export function validateCSRF(token: string | null, sessionToken: string | null): boolean {
   // En producción, implementar validación real de CSRF
   // Por ahora, validación básica
-  return token && sessionToken && token.length > 0
+  return Boolean(token && sessionToken && token.length > 0)
 }
 
 // Validación de rate limiting

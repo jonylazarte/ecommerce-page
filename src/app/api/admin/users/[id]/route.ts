@@ -65,7 +65,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Prevent admin from deleting themselves
-    if (user.id === id) {
+    if ((user as unknown as { id: string }).id === id) {
       return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 });
     }
 

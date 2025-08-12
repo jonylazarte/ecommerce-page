@@ -23,9 +23,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { name, description, price, category, brand, inStock, image, images, features, specifications } = body;
+    const { name, description, price, category, brand, inStock, images } = body;
 
-    if (!name || !description || !price || !category || !brand || !image) {
+    if (!name || !description || !price || !category || !brand) {
       return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
     }
 
@@ -38,10 +38,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         category,
         brand,
         inStock: Boolean(inStock),
-        image,
-        images: images || [],
-        features: features || [],
-        specifications: specifications || {}
+        images: images || []
       }
     });
 

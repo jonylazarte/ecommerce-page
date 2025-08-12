@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -31,16 +31,7 @@ export default function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
-      router.push('/auth');
-      return;
-    }
-
-    fetchDashboardStats();
-  }, [user, token]);
-
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/dashboard', {
         headers: {
@@ -57,7 +48,16 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      router.push('/auth');
+      return;
+    }
+
+    fetchDashboardStats();
+  }, [user, token, router, fetchDashboardStats]);
 
   if (loading) {
     return (
