@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Product } from '../lib/products';
 import { useCart } from '../contexts/CartContext';
 
@@ -26,10 +27,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
     >
       {/* Image Container with Hover Effects */}
       <div className="aspect-square bg-chinese-black-700 flex items-center justify-center relative overflow-hidden">
-        <img 
+        <Image 
           src={product.image} 
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+          fill
+          className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
         />
         
         {/* Overlay with gradient */}

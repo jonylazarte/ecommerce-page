@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface OrderItem {
   id: string;
@@ -50,16 +51,7 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
 
-  useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
-      router.push('/auth');
-      return;
-    }
-
-    fetchOrders();
-  }, [user, token]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/orders', {
         headers: {
@@ -76,9 +68,18 @@ export default function AdminOrders() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const updateOrderStatus = async (orderId: string, status: Order['status']) => {
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      router.push('/auth');
+      return;
+    }
+
+    fetchOrders();
+  }, [user, fetchOrders, router]);
+
+  const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {
     try {
       const response = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PUT',
@@ -95,9 +96,9 @@ export default function AdminOrders() {
     } catch (error) {
       console.error('Error updating order:', error);
     }
-  };
+  }, [token, fetchOrders]);
 
-  const updatePaymentStatus = async (orderId: string, paymentStatus: Order['paymentStatus']) => {
+  const updatePaymentStatus = useCallback(async (orderId: string, paymentStatus: Order['paymentStatus']) => {
     try {
       const response = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PUT',
@@ -114,7 +115,7 @@ export default function AdminOrders() {
     } catch (error) {
       console.error('Error updating payment status:', error);
     }
-  };
+  }, [token, fetchOrders]);
 
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
@@ -302,10 +303,12 @@ export default function AdminOrders() {
                 <div className="space-y-3">
                   {selectedOrder.orderItems.map((item) => (
                     <div key={item.id} className="flex items-center space-x-3 p-3 bg-chinese-black-800 rounded-lg">
-                      <img 
+                      <Image 
                         src={item.product.image} 
                         alt={item.product.name}
-                        className="w-12 h-12 object-cover rounded-lg"
+                        width={48}
+                        height={48}
+                        className="object-cover rounded-lg"
                       />
                       <div className="flex-1">
                         <p className="text-white font-medium">{item.product.name}</p>

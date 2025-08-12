@@ -17,74 +17,148 @@ export interface Product {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const products = await prisma.product.findMany({
-    where: { inStock: true }
-  })
-  
-  return products.map(product => ({
-    ...product,
-    image: JSON.parse(product.images)[0] || '',
-    images: JSON.parse(product.images),
-    longDescription: product.description,
-    specifications: {},
-    features: []
-  }))
+  try {
+    const products = await prisma.product.findMany({
+      where: { inStock: true }
+    })
+    
+    return products.map(product => {
+      // Parse images safely
+      let images: string[] = []
+      try {
+        images = JSON.parse(product.images)
+      } catch (error) {
+        console.error('Error parsing product images:', error)
+        images = [product.images] // Fallback to single image
+      }
+      
+      return {
+        ...product,
+        image: images[0] || '',
+        images: images,
+        longDescription: product.description,
+        specifications: {},
+        features: [],
+        inStock: product.inStock ?? true,
+        brand: product.brand || 'Marca',
+        category: product.category || 'Categoría'
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching products:', error)
+    return []
+  }
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const product = await prisma.product.findUnique({
-    where: { id }
-  })
-  
-  if (!product) return null
-  
-  return {
-    ...product,
-    image: JSON.parse(product.images)[0] || '',
-    images: JSON.parse(product.images),
-    longDescription: product.description,
-    specifications: {},
-    features: []
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id }
+    })
+    
+    if (!product) return null
+    
+    // Parse images safely
+    let images: string[] = []
+    try {
+      images = JSON.parse(product.images)
+    } catch (error) {
+      console.error('Error parsing product images:', error)
+      images = [product.images] // Fallback to single image
+    }
+    
+    return {
+      ...product,
+      image: images[0] || '',
+      images: images,
+      longDescription: product.description,
+      specifications: {},
+      features: [],
+      inStock: product.inStock ?? true,
+      brand: product.brand || 'Marca',
+      category: product.category || 'Categoría'
+    }
+  } catch (error) {
+    console.error('Error fetching product by ID:', error)
+    return null
   }
 }
 
 export async function getProductsByCategory(category: string): Promise<Product[]> {
-  const products = await prisma.product.findMany({
-    where: { 
-      category,
-      inStock: true 
-    }
-  })
-  
-  return products.map(product => ({
-    ...product,
-    image: JSON.parse(product.images)[0] || '',
-    images: JSON.parse(product.images),
-    longDescription: product.description,
-    specifications: {},
-    features: []
-  }))
+  try {
+    const products = await prisma.product.findMany({
+      where: { 
+        category,
+        inStock: true 
+      }
+    })
+    
+    return products.map(product => {
+      // Parse images safely
+      let images: string[] = []
+      try {
+        images = JSON.parse(product.images)
+      } catch (error) {
+        console.error('Error parsing product images:', error)
+        images = [product.images] // Fallback to single image
+      }
+      
+      return {
+        ...product,
+        image: images[0] || '',
+        images: images,
+        longDescription: product.description,
+        specifications: {},
+        features: [],
+        inStock: product.inStock ?? true,
+        brand: product.brand || 'Marca',
+        category: product.category || 'Categoría'
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching products by category:', error)
+    return []
+  }
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
-  const products = await prisma.product.findMany({
-    where: {
-      inStock: true,
-      OR: [
-        { name: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
-        { category: { contains: query, mode: 'insensitive' } },
-        { brand: { contains: query, mode: 'insensitive' } }
-      ]
-    }
-  })
-  
-  return products.map(product => ({
-    ...product,
-    image: JSON.parse(product.images)[0] || '',
-    images: JSON.parse(product.images),
-    longDescription: product.description,
-    specifications: {},
-    features: []
-  }))
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        inStock: true,
+        OR: [
+          { name: { contains: query } },
+          { description: { contains: query } },
+          { category: { contains: query } },
+          { brand: { contains: query } }
+        ]
+      }
+    })
+    
+    return products.map(product => {
+      // Parse images safely
+      let images: string[] = []
+      try {
+        images = JSON.parse(product.images)
+      } catch (error) {
+        console.error('Error parsing product images:', error)
+        images = [product.images] // Fallback to single image
+      }
+      
+      return {
+        ...product,
+        image: images[0] || '',
+        images: images,
+        longDescription: product.description,
+        specifications: {},
+        features: [],
+        inStock: product.inStock ?? true,
+        brand: product.brand || 'Marca',
+        category: product.category || 'Categoría'
+      }
+    })
+  } catch (error) {
+    console.error('Error searching products:', error)
+    return []
+  }
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   id: string;
@@ -41,16 +42,7 @@ export default function AdminProducts() {
     specifications: ''
   });
 
-  useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
-      router.push('/auth');
-      return;
-    }
-
-    fetchProducts();
-  }, [user, token]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/products', {
         headers: {
@@ -67,7 +59,16 @@ export default function AdminProducts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      router.push('/auth');
+      return;
+    }
+
+    fetchProducts();
+  }, [user, fetchProducts, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,10 +212,12 @@ export default function AdminProducts() {
                 {products.map((product) => (
                   <tr key={product.id} className="border-b border-chinese-red-500/20 hover:bg-chinese-black-700">
                     <td className="py-4 px-6">
-                      <img 
+                      <Image 
                         src={product.image} 
                         alt={product.name}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        width={64}
+                        height={64}
+                        className="object-cover rounded-lg"
                       />
                     </td>
                     <td className="py-4 px-6">

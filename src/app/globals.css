@@ -10,10 +10,21 @@ body {
   font-family: 'Noto Sans SC', sans-serif;
 }
 
-/* Hide scrollbar when cart is open */
-body.cart-open {
-  overflow: hidden;
-  padding-right: var(--scrollbar-width);
+/* Ensure header stays in place */
+header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 50 !important;
+  height: auto !important;
+  min-height: 4.5rem !important;
+}
+
+@media (min-width: 1024px) {
+  header {
+    min-height: 5.5rem !important;
+  }
 }
 
 /* Custom scrollbar styles */

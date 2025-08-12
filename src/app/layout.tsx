@@ -23,7 +23,7 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <Header />
-            <main className="pt-16 lg:pt-20">
+            <main className="pt-20 lg:pt-24 min-h-screen">
               {children}
             </main>
           </CartProvider>

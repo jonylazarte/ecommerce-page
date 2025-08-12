@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import PayPalButton from '../../components/PayPalButton';
@@ -271,14 +272,14 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-chinese-black-900 chinese-bg">
-             {/* Back Button */}
-       <div className="bg-chinese-black-800 border-b border-chinese-red-500/30">
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-           <Link href="/" className="text-chinese-red-400 hover:text-chinese-red-300 transition-colors duration-200">
-             ← Volver a la tienda
-           </Link>
-         </div>
-       </div>
+      {/* Back Button */}
+      <div className="bg-chinese-black-800 border-b border-chinese-red-500/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Link href="/" className="text-chinese-red-400 hover:text-chinese-red-300 transition-colors duration-200">
+            ← Volver a la tienda
+          </Link>
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -855,11 +856,14 @@ export default function CheckoutPage() {
               <div className="space-y-4 mb-6">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center space-x-4">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg border border-chinese-red-500/30"
-                    />
+                    <div className="relative w-16 h-16">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        className="object-cover rounded-lg border border-chinese-red-500/30"
+                      />
+                    </div>
                     <div className="flex-1">
                       <h4 className="text-white font-medium">{item.name}</h4>
                       <p className="text-chinese-red-300">Cantidad: {item.quantity}</p>

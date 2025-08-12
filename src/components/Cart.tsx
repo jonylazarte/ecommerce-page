@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface CartItem {
   id: number;
@@ -30,7 +31,7 @@ const Cart = ({ isOpen, onClose, cartItems = [], onUpdateQuantity, onRemoveItem 
     router.push('/checkout'); // Navigate to checkout
   };
 
-  // Handle escape key and body scroll
+  // Handle escape key only
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -38,27 +39,12 @@ const Cart = ({ isOpen, onClose, cartItems = [], onUpdateQuantity, onRemoveItem 
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      
-      // Calculate scrollbar width and set CSS variable
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
-      
-      // Add class to body for CSS-based scrollbar hiding
-      document.body.classList.add('cart-open');
     } else {
       document.removeEventListener('keydown', handleEscape);
-      
-      // Remove class and CSS variable
-      document.body.classList.remove('cart-open');
-      document.documentElement.style.removeProperty('--scrollbar-width');
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      
-      // Cleanup: remove class and CSS variable
-      document.body.classList.remove('cart-open');
-      document.documentElement.style.removeProperty('--scrollbar-width');
     };
   }, [isOpen, onClose]);
 
@@ -87,12 +73,12 @@ const Cart = ({ isOpen, onClose, cartItems = [], onUpdateQuantity, onRemoveItem 
       />
       
       {/* Cart Panel */}
-      <div className={`fixed top-0 right-0 h-screen w-full max-w-md bg-chinese-black-800 border-l border-chinese-red-500/30 shadow-2xl transform transition-transform duration-300 ease-out ${
+      <div className={`fixed top-0 right-0 h-screen w-full max-w-md bg-chinese-black-800/90 backdrop-blur-sm border-l border-chinese-red-500/30 shadow-2xl transform transition-transform duration-300 ease-out overflow-hidden ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between h-16 lg:h-20 px-4 sm:px-6 lg:px-8 border-b border-chinese-red-500/30">
+          <div className="flex items-center justify-between h-16 lg:h-20 px-4 sm:px-6 lg:px-8 border-b border-chinese-red-500/20 bg-chinese-black-800/90 backdrop-blur-sm">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 lg:w-10 lg:h-10 bg-chinese-red-600 rounded-full flex items-center justify-center">
                 <svg className="w-5 h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,11 +117,14 @@ const Cart = ({ isOpen, onClose, cartItems = [], onUpdateQuantity, onRemoveItem 
                     className="bg-chinese-black-700 rounded-lg border border-chinese-red-500/20 p-4 transform hover:scale-[1.02] transition-all duration-200"
                   >
                     <div className="flex items-center space-x-4">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover rounded-lg border border-chinese-red-500/30"
-                      />
+                      <div className="relative w-20 h-20">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover rounded-lg border border-chinese-red-500/30"
+                        />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-white chinese-serif truncate">{item.name}</h3>
                         <p className="text-chinese-red-300 text-lg font-bold">${item.price.toLocaleString('es-AR')}</p>
