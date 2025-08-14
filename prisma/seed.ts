@@ -8,7 +8,7 @@ async function main() {
     where: { email: 'admin@redchilli.com' },
     update: {},
     create: {
-      email: 'admin@redchilli.com',
+      email: 'admin@dragontech.com',
       name: 'Administrador',
       password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK2.', // password: admin123
       role: 'ADMIN',
